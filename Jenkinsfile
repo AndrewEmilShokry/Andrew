@@ -1,45 +1,23 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "mywebsite"
-        TAG = "latest"
-        OUTPUT_FILE = "mywebsite.tar"
-    }
-
     stages {
-        stage('Clone Repository') {
+        stage('Build') {
             steps {
-                git 'https://github.com/AndrewEmilShokry/Andrew.git'
+                echo 'Building the project...'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Test') {
             steps {
-                script {
-                    sh "docker build -t ${IMAGE_NAME}:${TAG} ."
-                }
+                echo 'Running tests...'
             }
         }
 
-        stage('Save Image to File') {
+        stage('Deploy') {
             steps {
-                script {
-                    sh "docker save -o ${OUTPUT_FILE} ${IMAGE_NAME}:${TAG}"
-                }
+                echo 'Deploying the project...'
             }
-        }
-
-        stage('Archive for Download') {
-            steps {
-                archiveArtifacts artifacts: "${OUTPUT_FILE}", fingerprint: true
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "Image saved as ${OUTPUT_FILE}. You can download it from Jenkins now."
         }
     }
 }
