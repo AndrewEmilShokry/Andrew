@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'andrewfeeder/jenkins-project'
-        TAG = "${env.BUILD_NUMBER}"
+        IMAGE_NAME = "mywebsite"
+        TAG = "latest"
+        OUTPUT_FILE = "mywebsite.tar"
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Clone Repository') {
             steps {
                 git 'https://github.com/AndrewEmilShokry/Andrew.git'
             }
@@ -16,34 +17,29 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${TAG}")
+                    sh "docker build -t ${IMAGE_NAME}:${TAG} ."
                 }
             }
         }
 
-        stage('Test (Optional)') {
-            steps {
-                echo '✅ No automated tests added. Skipping this step.'
-            }
-        }
-
-        stage('Push to Docker Hub') {
+        stage('Save Image to File') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-login') {
-                        docker.image("${DOCKER_IMAGE}:${TAG}").push()
-                    }
+                    sh "docker save -o ${OUTPUT_FILE} ${IMAGE_NAME}:${TAG}"
                 }
+            }
+        }
+
+        stage('Archive for Download') {
+            steps {
+                archiveArtifacts artifacts: "${OUTPUT_FILE}", fingerprint: true
             }
         }
     }
 
     post {
         success {
-            echo "✅ Successfully pushed Docker image: ${DOCKER_IMAGE}:${TAG}"
-        }
-        failure {
-            echo "❌ Pipeline failed. Please check logs."
+            echo "Image saved as ${OUTPUT_FILE}. You can download it from Jenkins now."
         }
     }
 }
