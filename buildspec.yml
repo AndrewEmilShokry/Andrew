@@ -5,7 +5,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      - $(aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 697019450100.dkr.ecr.eu-west-2.amazonaws.com)
+      - $(aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 97019450100.dkr.ecr.eu-west-2.amazonaws.com/aws-ecs-docer)
 
   build:
     commands:
@@ -17,9 +17,9 @@ phases:
   post_build:
     commands:
       - echo Build completed on `date`
-      - echo Pushing the Docker image...
+      - echo Pushing the Docker image to ECR...
       - docker push 697019450100.dkr.ecr.eu-west-2.amazonaws.com/myapp:latest
-      - echo Creating imagedefinitions.json file...
+      - echo Writing imagedefinitions.json for ECS...
       - printf '[{"name":"myapp-container","imageUri":"697019450100.dkr.ecr.eu-west-2.amazonaws.com/myapp:latest"}]' > imagedefinitions.json
 
 artifacts:
