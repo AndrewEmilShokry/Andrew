@@ -1,32 +1,27 @@
 version: 0.2
 
-env:
-  variables:
-    AWS_DEFAULT_REGION: "us-east-1"   # change if using another region
-    REPOSITORY_NAME: "myapp"          # your ECR repo name
-
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - ACCOUNT_ID=$(aws sts get-caller-identity --query account --output text)
-      - REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REPOSITORY_NAME
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - echo "Repository URI: $REPOSITORY_URI"
-      - echo "Image Tag: $IMAGE_TAG"
+      - aws --version
+      - $(aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 697019450100.dkr.ecr.eu-west-2.amazonaws.com)
+
   build:
     commands:
       - echo Build started on `date`
-      - echo Building Docker image...
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
+      - echo Building the Docker image...
+      - docker build -t myapp .
+      - docker tag myapp:latest 697019450100.dkr.ecr.eu-west-2.amazonaws.com/myapp:latest
+
   post_build:
     commands:
       - echo Build completed on `date`
-      - echo Pushing Docker image to ECR...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo Writing image definitions file...
-      - printf '[{"name":"myapp-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - echo Pushing the Docker image...
+      - docker push 697019450100.dkr.ecr.eu-west-2.amazonaws.com/myapp:latest
+      - echo Creating imagedefinitions.json file...
+      - printf '[{"name":"myapp-container","imageUri":"697019450100.dkr.ecr.eu-west-2.amazonaws.com/myapp:latest"}]' > imagedefinitions.json
+
 artifacts:
   files:
     - imagedefinitions.json
