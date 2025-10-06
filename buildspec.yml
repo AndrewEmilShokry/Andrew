@@ -5,7 +5,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      - $(aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 697019450100.dkr.ecr.eu-west-2.amazonaws.com)
+      - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 697019450100.dkr.ecr.eu-west-2.amazonaws.com
 
   build:
     commands:
@@ -20,7 +20,7 @@ phases:
       - echo Pushing the Docker image to ECR...
       - docker push 697019450100.dkr.ecr.eu-west-2.amazonaws.com/aws-ecs-docer:latest
       - echo Writing imagedefinitions.json for ECS...
-      - printf '[{"name":"myapp-container","imageUri":"697019450100.dkr.ecr.eu-west-2.amazonaws.com/aws-ecs-docer:latest"}]' > imagedefinitions.json
+      - printf '[{"name":"aws-ecs-docer","imageUri":"697019450100.dkr.ecr.eu-west-2.amazonaws.com/aws-ecs-docer:latest"}]' > imagedefinitions.json
 
 artifacts:
   files:
